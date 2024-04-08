@@ -1,5 +1,57 @@
 # @rollup/pluginutils ChangeLog
 
+## v5.1.0
+
+_2023-11-28_
+
+### Features
+
+- feat: add `includeArbitraryNames: true` to `dataToEsm` (#1635)
+
+### Updates
+
+- doc: correct the return type of createFilter (#1633)
+
+## v5.0.5
+
+_2023-10-05_
+
+### Bugfixes
+
+- fix: ensure rollup 4 compatibility [#1595](https://github.com/rollup/plugins/pull/1595)
+
+## v5.0.4
+
+_2023-08-26_
+
+### Updates
+
+- docs: configure correct options [#1563](https://github.com/rollup/plugins/pull/1563)
+
+## v5.0.3
+
+_2023-08-13_
+
+### Bugfixes
+
+- fix: add current working dirctory when pattern starts with one \* [#1547](https://github.com/rollup/plugins/pull/1547)
+
+## v5.0.2
+
+_2022-10-21_
+
+### Updates
+
+- chore: update rollup dependencies ([3038271](https://github.com/rollup/plugins/commit/303827191ede6b2e4eade96c6968ed16a587683f))
+
+## v5.0.1
+
+_2022-10-13_
+
+### Bugfixes
+
+- fix: Move `@types/estree` to dependencies (fixes #1315) [#1320](https://github.com/rollup/plugins/pull/1320)
+
 ## v5.0.0
 
 _2022-10-10_

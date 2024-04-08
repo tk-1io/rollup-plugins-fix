@@ -1,11 +1,23 @@
-import { RollupWarning } from 'rollup';
+import type typescript from 'typescript';
 import type { Diagnostic, FormatDiagnosticsHost } from 'typescript';
+
+// TODO Drop rollup@2 compatibility and use native RollupLog type instead
+interface RollupLog {
+  frame?: string;
+  loc?: {
+    column: number;
+    file?: string;
+    line: number;
+  };
+  message: string;
+  pluginCode?: unknown;
+}
 
 /**
  * Converts a Typescript type error into an equivalent Rollup warning object.
  */
 export default function diagnosticToWarning(
-  ts: typeof import('typescript'),
+  ts: typeof typescript,
   host: FormatDiagnosticsHost | null,
   diagnostic: Diagnostic
 ) {
@@ -13,7 +25,7 @@ export default function diagnosticToWarning(
   const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
 
   // Build a Rollup warning object from the diagnostics object.
-  const warning: RollupWarning = {
+  const warning: RollupLog = {
     pluginCode,
     message: `@rollup/plugin-typescript ${pluginCode}: ${message}`
   };

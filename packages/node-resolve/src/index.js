@@ -37,7 +37,10 @@ const defaults = {
   extensions: ['.mjs', '.js', '.json', '.node'],
   resolveOnly: [],
   moduleDirectories: ['node_modules'],
-  ignoreSideEffectsForRoot: false
+  modulePaths: [],
+  ignoreSideEffectsForRoot: false,
+  // TODO: set to false in next major release or remove
+  allowExportsFolderMapping: true
 };
 export const DEFAULTS = deepFreeze(deepMerge({}, defaults));
 
@@ -146,11 +149,18 @@ export function nodeResolve(opts = {}) {
       importSpecifierList.push(`./${importee}`);
     }
 
-    // TypeScript files may import '.js' to refer to either '.ts' or '.tsx'
-    if (importer && importee.endsWith('.js')) {
-      for (const ext of ['.ts', '.tsx']) {
-        if (importer.endsWith(ext) && extensions.includes(ext)) {
-          importSpecifierList.push(importee.replace(/.js$/, ext));
+    // TypeScript files may import '.mjs' or '.cjs' to refer to either '.mts' or '.cts'.
+    // They may also import .js to refer to either .ts or .tsx, and .jsx to refer to .tsx.
+    if (importer && /\.(ts|mts|cts|tsx)$/.test(importer)) {
+      for (const [importeeExt, resolvedExt] of [
+        ['.js', '.ts'],
+        ['.js', '.tsx'],
+        ['.jsx', '.tsx'],
+        ['.mjs', '.mts'],
+        ['.cjs', '.cts']
+      ]) {
+        if (importee.endsWith(importeeExt) && extensions.includes(resolvedExt)) {
+          importSpecifierList.push(importee.slice(0, -importeeExt.length) + resolvedExt);
         }
       }
     }
@@ -176,7 +186,8 @@ export function nodeResolve(opts = {}) {
       moduleDirectories,
       modulePaths,
       rootDir,
-      ignoreSideEffectsForRoot
+      ignoreSideEffectsForRoot,
+      allowExportsFolderMapping: options.allowExportsFolderMapping
     });
 
     const importeeIsBuiltin = isBuiltinModule(importee);
@@ -294,7 +305,8 @@ export function nodeResolve(opts = {}) {
           // `moduleSideEffects` information.
           const resolvedResolved = await this.resolve(resolved.id, importer, {
             ...resolveOptions,
-            custom: { ...custom, 'node-resolve': { ...custom['node-resolve'], resolved } }
+            skipSelf: false,
+            custom: { ...custom, 'node-resolve': { ...custom['node-resolve'], resolved, importee } }
           });
           if (resolvedResolved) {
             // Handle plugins that manually make the result external

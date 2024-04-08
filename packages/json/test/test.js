@@ -54,6 +54,17 @@ test('generates named exports', async (t) => {
   t.is(code.indexOf('this-should-be-excluded'), -1, 'should exclude unused properties');
 });
 
+test('generates named exports including arbitrary names', async (t) => {
+  const bundle = await rollup({
+    input: 'fixtures/arbitrary/main.js',
+    plugins: [json({ includeArbitraryNames: true })]
+  });
+
+  const { result } = await testBundle(t, bundle, { inject: { exports: {} } });
+
+  t.is(result.bar, 'baz');
+});
+
 test('resolves extensionless imports in conjunction with the node-resolve plugin', async (t) => {
   const bundle = await rollup({
     input: 'fixtures/extensionless/main.js',
@@ -73,21 +84,18 @@ test('handles JSON objects with no valid keys (#19)', async (t) => {
 });
 
 test('handles garbage', async (t) => {
-  const warns = [];
-
-  await rollup({
-    input: 'fixtures/garbage/main.js',
-    plugins: [json()],
-    onwarn: (warning) => warns.push(warning)
-  }).catch(() => {});
-
-  const [{ message, id, position, plugin }] = warns;
-
-  t.is(warns.length, 1);
-  t.is(plugin, 'json');
-  t.is(position, 1);
-  t.is(message, 'Could not parse JSON file');
-  t.regex(id, /(.*)bad.json$/);
+  const err = await t.throwsAsync(
+    rollup({
+      input: 'fixtures/garbage/main.js',
+      plugins: [json()]
+    })
+  );
+  t.is(err.code, 'PLUGIN_ERROR');
+  t.is(err.plugin, 'json');
+  t.is(err.message, 'Could not parse JSON file');
+  t.is(err.name, 'RollupError');
+  t.is(err.cause.name, 'SyntaxError');
+  t.regex(err.id, /(.*)bad.json$/);
 });
 
 test('does not generate an AST', async (t) => {

@@ -1,5 +1,25 @@
 # @rollup/plugin-beep ChangeLog
 
+## v1.0.3
+
+_2023-10-05_
+
+### Bugfixes
+
+- fix: ensure rollup 4 compatibility [#1595](https://github.com/rollup/plugins/pull/1595)
+
+## v1.0.2
+
+_2022-10-21_
+
+### Updates
+
+- chore: update rollup dependencies ([3038271](https://github.com/rollup/plugins/commit/303827191ede6b2e4eade96c6968ed16a587683f))
+
+## v1.0.1
+
+_Skipped for repo rebase_
+
 ## v1.0.0
 
 _2022-10-08_

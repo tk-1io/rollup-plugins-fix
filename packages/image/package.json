@@ -1,6 +1,6 @@
 {
   "name": "@rollup/plugin-image",
-  "version": "3.0.0",
+  "version": "3.0.3",
   "publishConfig": {
     "access": "public"
   },
@@ -16,8 +16,8 @@
   "main": "./dist/cjs/index.js",
   "module": "./dist/es/index.js",
   "exports": {
-    "import": "./dist/es/index.js",
     "types": "./types/index.d.ts",
+    "import": "./dist/es/index.js",
     "default": "./dist/cjs/index.js"
   },
   "engines": {
@@ -33,7 +33,7 @@
     "prepare": "if [ ! -d 'dist' ]; then pnpm build; fi",
     "prerelease": "pnpm build",
     "pretest": "pnpm build",
-    "release": "pnpm --workspace-root plugin:release --pkg $npm_package_name",
+    "release": "pnpm --workspace-root package:release $(pwd)",
     "test": "ava"
   },
   "files": [
@@ -50,7 +50,7 @@
     "modules"
   ],
   "peerDependencies": {
-    "rollup": "^1.20.0||^2.0.0||^3.0.0"
+    "rollup": "^1.20.0||^2.0.0||^3.0.0||^4.0.0"
   },
   "peerDependenciesMeta": {
     "rollup": {
@@ -58,12 +58,12 @@
     }
   },
   "dependencies": {
-    "@rollup/pluginutils": "^4.2.1",
+    "@rollup/pluginutils": "^5.0.1",
     "mini-svg-data-uri": "^1.4.4"
   },
   "devDependencies": {
-    "@rollup/plugin-buble": "^0.21.3",
-    "rollup": "^3.0.0-7"
+    "@rollup/plugin-buble": "^1.0.0",
+    "rollup": "^4.0.0-24"
   },
   "types": "./types/index.d.ts",
   "ava": {

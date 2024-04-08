@@ -112,6 +112,7 @@ export default function commonjs(options = {}) {
   let requireResolver;
 
   function transformAndCheckExports(code, id) {
+    const normalizedId = normalizePathSlashes(id);
     const { isEsModule, hasDefaultExport, hasNamedExports, ast } = analyzeTopLevelStatements(
       this.parse,
       code,
@@ -127,7 +128,7 @@ export default function commonjs(options = {}) {
     }
 
     if (
-      !dynamicRequireModules.has(normalizePathSlashes(id)) &&
+      !dynamicRequireModules.has(normalizedId) &&
       (!(hasCjsKeywords(code, ignoreGlobal) || requireResolver.isRequiredId(id)) ||
         (isEsModule && !options.transformMixedEsModules))
     ) {
@@ -136,18 +137,19 @@ export default function commonjs(options = {}) {
     }
 
     const needsRequireWrapper =
-      !isEsModule &&
-      (dynamicRequireModules.has(normalizePathSlashes(id)) || strictRequiresFilter(id));
+      !isEsModule && (dynamicRequireModules.has(normalizedId) || strictRequiresFilter(id));
 
     const checkDynamicRequire = (position) => {
-      if (id.indexOf(dynamicRequireRoot) !== 0) {
+      const normalizedDynamicRequireRoot = normalizePathSlashes(dynamicRequireRoot);
+
+      if (normalizedId.indexOf(normalizedDynamicRequireRoot) !== 0) {
         this.error(
           {
             code: 'DYNAMIC_REQUIRE_OUTSIDE_ROOT',
-            id,
-            dynamicRequireRoot,
-            message: `"${id}" contains dynamic require statements but it is not within the current dynamicRequireRoot "${dynamicRequireRoot}". You should set dynamicRequireRoot to "${dirname(
-              id
+            normalizedId,
+            normalizedDynamicRequireRoot,
+            message: `"${normalizedId}" contains dynamic require statements but it is not within the current dynamicRequireRoot "${normalizedDynamicRequireRoot}". You should set dynamicRequireRoot to "${dirname(
+              normalizedId
             )}" or one of its parent directories.`
           },
           position
@@ -246,7 +248,6 @@ export default function commonjs(options = {}) {
         const name = getName(unwrapId(id, MODULE_SUFFIX));
         return {
           code: `var ${name} = {exports: {}}; export {${name} as __module}`,
-          syntheticNamedExports: '__module',
           meta: { commonjs: { isCommonJS: false } }
         };
       }
@@ -270,7 +271,16 @@ export default function commonjs(options = {}) {
       // entry suffix is just appended to not mess up relative external resolution
       if (id.endsWith(ENTRY_SUFFIX)) {
         const acutalId = id.slice(0, -ENTRY_SUFFIX.length);
-        return getEntryProxy(acutalId, getDefaultIsModuleExports(acutalId), this.getModuleInfo);
+        const {
+          meta: { commonjs: commonjsMeta }
+        } = this.getModuleInfo(acutalId);
+        const shebang = commonjsMeta?.shebang ?? '';
+        return getEntryProxy(
+          acutalId,
+          getDefaultIsModuleExports(acutalId),
+          this.getModuleInfo,
+          shebang
+        );
       }
 
       if (isWrappedId(id, ES_IMPORT_SUFFIX)) {
@@ -305,7 +315,7 @@ export default function commonjs(options = {}) {
       try {
         return transformAndCheckExports.call(this, code, id);
       } catch (err) {
-        return this.error(err, err.loc);
+        return this.error(err, err.pos);
       }
     }
   };

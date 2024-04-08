@@ -61,6 +61,15 @@ Default: `[]`
 
 Files to exclude in this plugin (default none).
 
+#### `errorWhenNoFilesFound`
+
+Type: `Boolean`<br>
+Default: `false`
+
+By default, the plugin will not throw errors when target files are not found. Setting this option to true will result in errors thrown when encountering files which don't exist.
+
+⚠️ _Important:_ Enabling this option when `warnOnError` is set to `true` will result in a warning and _not_ an error
+
 #### `warnOnError`
 
 Type: `Boolean`<br>
@@ -95,7 +104,7 @@ Some example patterns and the glob they produce:
 ```
 
 ```js
-'./locales/' + locale + foo + bar '.js' -> './locales/*.js'
+'./locales/' + locale + foo + bar + '.js' -> './locales/*.js'
 ```
 
 ```js
@@ -144,6 +153,20 @@ function importLocale(locale) {
   return __variableDynamicImportRuntime__(`./locales/${locale}.js`);
 }
 ```
+
+## Import Assertions
+
+This plugin will keep your import assertions inside dynamic import statements intact.
+
+```js
+// Refer to rollup-plugin-import-css https://github.com/jleeson/rollup-plugin-import-css
+function importLocale(sheet) {
+  return import(`./styles/${sheet}.css`, { assert: { type: 'css' } });
+}
+```
+
+This is important e.g. in the context of [rollup-plugin-import-css](https://github.com/jleeson/rollup-plugin-import-css) dealing with CSS imports,
+due to there still being an assertion, it will resolve the CSS import to a CSSStyleSheet, similar to native browser behavior.
 
 ## Limitations
 

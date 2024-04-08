@@ -1,6 +1,6 @@
-import { DSVRowString } from 'd3-dsv';
-import { FilterPattern } from '@rollup/pluginutils';
-import { Plugin } from 'rollup';
+import type { DSVRowString } from 'd3-dsv';
+import type { FilterPattern } from '@rollup/pluginutils';
+import type { Plugin } from 'rollup';
 
 interface RollupDsvOptions {
   /**
@@ -20,7 +20,7 @@ interface RollupDsvOptions {
    * The function can either manipulate the passed row, or return an entirely new row object.
    * @default undefined
    */
-  processRow?: null | ((row: DSVRowString, id: string) => DSVRowString | undefined);
+  processRow?: null | ((row: DSVRowString, id: string) => object | void);
 }
 
 /**

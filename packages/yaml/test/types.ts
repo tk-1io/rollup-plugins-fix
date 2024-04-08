@@ -1,4 +1,4 @@
-import { RollupOptions } from 'rollup';
+import type { RollupOptions } from 'rollup';
 
 import yaml from '..';
 
@@ -19,7 +19,8 @@ const config: RollupOptions = {
         }
 
         return data;
-      }
+      },
+      extensions: ['.yaml', '.yml', '.cff']
     })
   ]
 };

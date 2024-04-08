@@ -1,5 +1,5 @@
-import { FilterPattern } from '@rollup/pluginutils';
-import { Plugin } from 'rollup';
+import type { FilterPattern } from '@rollup/pluginutils';
+import type { Plugin } from 'rollup';
 
 type ValidYamlType =
   | number
@@ -37,6 +37,13 @@ interface RollupYamlOptions {
    * @default 'single'
    */
   documentMode?: 'single' | 'multi';
+
+  /**
+   * File extensions to process. Useful if you have files that contain YAML but do not have a
+   * `.yaml` or `.yml` extension.
+   * @default ['.yaml', '.yml']
+   */
+  extensions?: string[];
 }
 
 /**

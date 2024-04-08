@@ -2,17 +2,25 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { createHash } from 'crypto';
 
-import { Plugin } from 'rollup';
+import type { Plugin } from 'rollup';
+import { createFilter } from '@rollup/pluginutils';
 
 import type { RollupWasmOptions } from '../types';
 
 import { getHelpersModule, HELPERS_ID } from './helper';
 
 export function wasm(options: RollupWasmOptions = {}): Plugin {
-  const { sync = [], maxFileSize = 14 * 1024, publicPath = '', targetEnv = 'auto' } = options;
+  const {
+    sync = [],
+    maxFileSize = 14 * 1024,
+    publicPath = '',
+    targetEnv = 'auto',
+    fileName = '[hash][extname]'
+  } = options;
 
   const syncFiles = sync.map((x) => path.resolve(x));
   const copies = Object.create(null);
+  const filter = createFilter(options.include, options.exclude);
 
   return {
     name: 'wasm',
@@ -30,9 +38,14 @@ export function wasm(options: RollupWasmOptions = {}): Plugin {
         return getHelpersModule(targetEnv);
       }
 
+      if (!filter(id)) {
+        return null;
+      }
+
       if (!/\.wasm$/.test(id)) {
         return null;
       }
+      this.addWatchFile(id);
 
       return Promise.all([fs.promises.stat(id), fs.promises.readFile(id)]).then(
         ([stats, buffer]) => {
@@ -42,14 +55,20 @@ export function wasm(options: RollupWasmOptions = {}): Plugin {
 
           if ((maxFileSize && stats.size > maxFileSize) || maxFileSize === 0) {
             const hash = createHash('sha1').update(buffer).digest('hex').substr(0, 16);
+            const ext = path.extname(id);
+            const name = path.basename(id, ext);
 
-            const filename = `${hash}.wasm`;
-            const publicFilepath = `${publicPath}${filename}`;
+            const outputFileName = fileName
+              .replace(/\[hash\]/g, hash)
+              .replace(/\[extname\]/g, ext)
+              .replace(/\[name\]/g, name);
+
+            const publicFilepath = `${publicPath}${outputFileName}`;
 
             // only copy if the file is not marked `sync`, `sync` files are always inlined
             if (syncFiles.indexOf(id) === -1) {
               copies[id] = {
-                filename,
+                filename: outputFileName,
                 publicFilepath,
                 buffer
               };
@@ -62,6 +81,10 @@ export function wasm(options: RollupWasmOptions = {}): Plugin {
     },
 
     transform(code, id) {
+      if (!filter(id)) {
+        return null;
+      }
+
       if (code && /\.wasm$/.test(id)) {
         const isSync = syncFiles.indexOf(id) !== -1;
         const publicFilepath = copies[id] ? `'${copies[id].publicFilepath}'` : null;

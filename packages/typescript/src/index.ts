@@ -2,7 +2,7 @@ import * as path from 'path';
 
 import { createFilter } from '@rollup/pluginutils';
 
-import { Plugin, RollupOptions, SourceDescription } from 'rollup';
+import type { Plugin, SourceDescription } from 'rollup';
 import type { Watch } from 'typescript';
 
 import type { RollupTypescriptOptions } from '../types';
@@ -12,7 +12,13 @@ import createModuleResolver from './moduleResolution';
 import { getPluginOptions } from './options/plugin';
 import { emitParsedOptionsErrors, parseTypescriptConfig } from './options/tsconfig';
 import { validatePaths, validateSourceMap } from './options/validate';
-import findTypescriptOutput, { getEmittedFile, normalizePath, emitFile } from './outputFile';
+import findTypescriptOutput, {
+  getEmittedFile,
+  normalizePath,
+  emitFile,
+  isDeclarationOutputFile,
+  isTypeScriptMapOutputFile
+} from './outputFile';
 import { preflight } from './preflight';
 import createWatchProgram, { WatchProgramHelper } from './watchProgram';
 import TSCache from './tscache';
@@ -42,22 +48,30 @@ export default function typescript(options: RollupTypescriptOptions = {}): Plugi
   parsedOptions.fileNames = parsedOptions.fileNames.filter(filter);
 
   const formatHost = createFormattingHost(ts, parsedOptions.options);
-  const resolveModule = createModuleResolver(ts, formatHost);
+  const resolveModule = createModuleResolver(ts, formatHost, filter);
 
   let program: Watch<unknown> | null = null;
 
   return {
     name: 'typescript',
 
-    buildStart(rollupOptions: RollupOptions) {
+    buildStart(rollupOptions) {
       emitParsedOptionsErrors(ts, this, parsedOptions);
 
-      preflight({ config: parsedOptions, context: this, rollupOptions, tslib });
+      preflight({
+        config: parsedOptions,
+        context: this,
+        // TODO drop rollup@3 support and remove
+        inputPreserveModules: (rollupOptions as unknown as { preserveModules: boolean })
+          .preserveModules,
+        tslib
+      });
 
       // Fixes a memory leak https://github.com/rollup/plugins/issues/322
       if (this.meta.watchMode !== true) {
         // eslint-disable-next-line
         program?.close();
+        program = null;
       }
       if (!program) {
         program = createWatchProgram(ts, this, {
@@ -135,6 +149,7 @@ export default function typescript(options: RollupTypescriptOptions = {}): Plugi
     async load(id) {
       if (!filter(id)) return null;
 
+      this.addWatchFile(id);
       await watchProgramHelper.wait();
 
       const fileName = normalizePath(id);
@@ -149,25 +164,41 @@ export default function typescript(options: RollupTypescriptOptions = {}): Plugi
     },
 
     async generateBundle(outputOptions) {
-      parsedOptions.fileNames.forEach((fileName) => {
-        const output = findTypescriptOutput(ts, parsedOptions, fileName, emittedFiles, tsCache);
-        output.declarations.forEach((id) => {
-          const code = getEmittedFile(id, emittedFiles, tsCache);
-          let baseDir =
-            outputOptions.dir ||
-            (parsedOptions.options.declaration
-              ? parsedOptions.options.declarationDir || parsedOptions.options.outDir
-              : null);
-          if (!baseDir && tsconfig) {
-            baseDir = tsconfig.substring(0, tsconfig.lastIndexOf('/'));
-          }
-          if (!code || !baseDir) return;
+      const declarationAndTypeScriptMapFiles = [...emittedFiles.keys()].filter(
+        (fileName) => isDeclarationOutputFile(fileName) || isTypeScriptMapOutputFile(fileName)
+      );
 
-          this.emitFile({
-            type: 'asset',
-            fileName: normalizePath(path.relative(baseDir, id)),
-            source: code
-          });
+      declarationAndTypeScriptMapFiles.forEach((id) => {
+        const code = getEmittedFile(id, emittedFiles, tsCache);
+        if (!code || !parsedOptions.options.declaration) {
+          return;
+        }
+
+        let baseDir: string | undefined;
+        if (outputOptions.dir) {
+          baseDir = outputOptions.dir;
+        } else if (outputOptions.file) {
+          // find common path of output.file and configured declation output
+          const outputDir = path.dirname(outputOptions.file);
+          const configured = path.resolve(
+            parsedOptions.options.declarationDir ||
+              parsedOptions.options.outDir ||
+              tsconfig ||
+              process.cwd()
+          );
+          const backwards = path
+            .relative(outputDir, configured)
+            .split(path.sep)
+            .filter((v) => v === '..')
+            .join(path.sep);
+          baseDir = path.normalize(`${outputDir}/${backwards}`);
+        }
+        if (!baseDir) return;
+
+        this.emitFile({
+          type: 'asset',
+          fileName: normalizePath(path.relative(baseDir, id)),
+          source: code
         });
       });
 

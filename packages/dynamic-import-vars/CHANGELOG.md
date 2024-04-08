@@ -1,5 +1,85 @@
 # @rollup/plugin-dynamic-import-vars ChangeLog
 
+## v2.1.2
+
+_2023-11-28_
+
+### Bugfixes
+
+- fix: Allow a "no files found" error to be emitted as warning (#1625)
+
+## v2.1.1
+
+_2023-11-25_
+
+### Bugfixes
+
+- fix: escape special glob characters (#1636)
+
+## v2.1.0
+
+_2023-10-25_
+
+### Features
+
+- feat: Error when files not found (#1611)
+
+## v2.0.7
+
+_2023-10-15_
+
+### Bugfixes
+
+- fix: bump magic-string version [#1596](https://github.com/rollup/plugins/pull/1596)
+
+## v2.0.6
+
+_2023-10-05_
+
+### Bugfixes
+
+- fix: ensure rollup 4 compatibility [#1595](https://github.com/rollup/plugins/pull/1595)
+
+## v2.0.5
+
+_2023-08-11_
+
+### Bugfixes
+
+- fix: keep dynamic import assert arg intact [#1504](https://github.com/rollup/plugins/pull/1504)
+
+## v2.0.4
+
+_2023-07-08_
+
+### Updates
+
+- docs: typo [#1527](https://github.com/rollup/plugins/pull/1527)
+
+## v2.0.3
+
+_2023-01-20_
+
+### Bugfixes
+
+- fix: types should come first in exports [#1403](https://github.com/rollup/plugins/pull/1403)
+
+## v2.0.2
+
+_2022-12-17_
+
+### Bugfixes
+
+- fix: update magic-string [#1373](https://github.com/rollup/plugins/pull/1373)
+
+## v2.0.1
+
+_2022-10-21_
+
+### Updates
+
+- chore: update rollup dependencies ([3038271](https://github.com/rollup/plugins/commit/303827191ede6b2e4eade96c6968ed16a587683f))
+
 ## v2.0.0
 
 _2022-10-09_

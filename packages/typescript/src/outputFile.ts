@@ -2,10 +2,12 @@ import * as path from 'path';
 
 import { promises as fs } from 'fs';
 
-import { OutputOptions, PluginContext, SourceDescription } from 'rollup';
+import type typescript from 'typescript';
+
+import type { OutputOptions, PluginContext, SourceDescription } from 'rollup';
 import type { ParsedCommandLine } from 'typescript';
 
-import TSCache from './tscache';
+import type TSCache from './tscache';
 
 export interface TypescriptSourceDescription extends Partial<SourceDescription> {
   declarations: string[];
@@ -14,15 +16,29 @@ export interface TypescriptSourceDescription extends Partial<SourceDescription> 
 /**
  * Checks if the given OutputFile represents some code
  */
-function isCodeOutputFile(name: string): boolean {
-  return !isMapOutputFile(name) && !name.endsWith('.d.ts');
+export function isCodeOutputFile(name: string): boolean {
+  return !isMapOutputFile(name) && !isDeclarationOutputFile(name);
 }
 
 /**
  * Checks if the given OutputFile represents some source map
  */
-function isMapOutputFile(name: string): boolean {
+export function isMapOutputFile(name: string): boolean {
   return name.endsWith('.map');
+}
+
+/**
+ * Checks if the given OutputFile represents some TypeScript source map
+ */
+export function isTypeScriptMapOutputFile(name: string): boolean {
+  return name.endsWith('ts.map');
+}
+
+/**
+ * Checks if the given OutputFile represents some declaration
+ */
+export function isDeclarationOutputFile(name: string): boolean {
+  return /\.d\.[cm]?ts$/.test(name);
 }
 
 /**
@@ -55,7 +71,7 @@ export function getEmittedFile(
  * containing files emitted by the Typescript compiler.
  */
 export default function findTypescriptOutput(
-  ts: typeof import('typescript'),
+  ts: typeof typescript,
   parsedOptions: ParsedCommandLine,
   id: string,
   emittedFiles: ReadonlyMap<string, string>,

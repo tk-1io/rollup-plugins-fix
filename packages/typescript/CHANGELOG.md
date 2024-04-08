@@ -1,5 +1,93 @@
 # @rollup/plugin-typescript ChangeLog
 
+## v11.1.6
+
+_2024-01-09_
+
+### Bugfixes
+
+- fix: Ensure rollup 4 compatibility (#1658)
+
+## v11.1.5
+
+_2023-10-05_
+
+### Bugfixes
+
+- fix: ensure rollup 4 compatibility [#1595](https://github.com/rollup/plugins/pull/1595)
+
+## v11.1.4
+
+_2023-09-25_
+
+### Bugfixes
+
+- fix: fix sourcemap sourcecontent referencing non-existent files [#1571](https://github.com/rollup/plugins/pull/1571)
+
+## v11.1.3
+
+_2023-08-26_
+
+### Bugfixes
+
+- fix: emit declaration files for type-only source files that are not explicitly included [#1555](https://github.com/rollup/plugins/pull/1555)
+
+## v11.1.2
+
+_2023-06-28_
+
+### Bugfixes
+
+- fix: change the value of isExternalLibraryImport to false if the resolvedModule should be compiled [#1521](https://github.com/rollup/plugins/pull/1521)
+
+## v11.1.1
+
+_2023-05-12_
+
+### Bugfixes
+
+- fix: Allow for using `compilerOptions.moduleResolution` [#1453](https://github.com/rollup/plugins/pull/1453)
+
+## v11.1.0
+
+_2023-04-04_
+
+### Features
+
+- feat: write declaration files in configured directory for `output.file` [#1378](https://github.com/rollup/plugins/pull/1378)
+
+## v11.0.0
+
+_2023-01-06_
+
+### Breaking Changes
+
+- fix: don't resolve filtered files [#1267](https://github.com/rollup/plugins/pull/1267) (#1310)
+
+## v10.0.1
+
+_2022-11-28_
+
+### Bugfixes
+
+- fix: emit assets when watchMode is false. fixes #1354 ([5c88274](https://github.com/rollup/plugins/commit/5c882743475a4480cb82e42253de9290b7329511))
+
+## v10.0.0
+
+_2022-11-27_
+
+### Breaking Changes
+
+- fix: incorrect declarations directory ([a5c90d1](https://github.com/rollup/plugins/commit/a5c90d1032390f9f6160d95c42171aa3014b3d6b))
+
+## v9.0.2
+
+_2022-10-21_
+
+### Updates
+
+- chore: update rollup dependencies ([3038271](https://github.com/rollup/plugins/commit/303827191ede6b2e4eade96c6968ed16a587683f))
+
 ## v9.0.1
 
 _2022-10-11_

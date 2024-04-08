@@ -185,3 +185,72 @@ test('throws an error on failure', async (t) => {
   }
   t.is(thrown, true);
 });
+
+test('dynamic imports assertions', async (t) => {
+  const bundle = await rollup({
+    input: 'fixture-assert.js',
+    plugins: [dynamicImportVars()]
+  });
+  const { output } = await bundle.generate({ format: 'es' });
+  const expectedFiles = [
+    require.resolve('./fixtures/fixture-assert.js'),
+    require.resolve('./fixtures/module-dir-a/module-a-1.js'),
+    require.resolve('./fixtures/module-dir-a/module-a-2.js')
+  ];
+
+  t.deepEqual(
+    expectedFiles,
+    output.map((o) => o.facadeModuleId)
+  );
+  t.snapshot(output[0].code);
+});
+
+test("doesn't throw if no files in dir when option isn't set", async (t) => {
+  let thrown = false;
+  try {
+    await rollup({
+      input: 'fixture-no-files.js',
+      plugins: [dynamicImportVars()]
+    });
+  } catch (_) {
+    thrown = true;
+  }
+  t.false(thrown);
+});
+
+test('throws if no files in dir when `errorWhenNoFilesFound` is set', async (t) => {
+  let thrown = false;
+  try {
+    await rollup({
+      input: 'fixture-no-files.js',
+      plugins: [dynamicImportVars({ errorWhenNoFilesFound: true })]
+    });
+  } catch (error) {
+    t.deepEqual(
+      error.message,
+      `No files found in ./module-dir-c/*.js when trying to dynamically load concatted string from ${require.resolve(
+        './fixtures/fixture-no-files.js'
+      )}`
+    );
+    thrown = true;
+  }
+  t.true(thrown);
+});
+
+test('warns if no files in dir when `errorWhenNoFilesFound` and `warnOnError` are both set', async (t) => {
+  let warningEmitted = false;
+  await rollup({
+    input: 'fixture-no-files.js',
+    plugins: [dynamicImportVars({ errorWhenNoFilesFound: true, warnOnError: true })],
+    onwarn(warning) {
+      t.deepEqual(
+        warning.message,
+        `No files found in ./module-dir-c/*.js when trying to dynamically load concatted string from ${require.resolve(
+          './fixtures/fixture-no-files.js'
+        )}`
+      );
+      warningEmitted = true;
+    }
+  });
+  t.true(warningEmitted);
+});

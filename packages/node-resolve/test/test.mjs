@@ -6,7 +6,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import test from 'ava';
 import { rollup } from 'rollup';
 
-import { nodeResolve } from 'current-package';
+import { nodeResolve, DEFAULTS } from 'current-package';
 
 import { evaluateBundle, getCode, getImports, testBundle } from '../../../util/test.js';
 
@@ -21,6 +21,10 @@ const getLastPathFragment = (path) => path && path.split(/[\\/]/).slice(-1)[0];
 test('exposes plugin version', (t) => {
   const plugin = nodeResolve();
   t.regex(plugin.version, /^\d+\.\d+\.\d+/);
+});
+
+test('has default config', (t) => {
+  t.snapshot(DEFAULTS);
 });
 
 test('finds a module with jsnext:main', async (t) => {
@@ -161,6 +165,82 @@ test('supports JS extensions in TS when referring to TS imports', async (t) => {
         babelHelpers: 'bundled',
         plugins: ['@babel/plugin-transform-typescript'],
         extensions: ['.js', '.ts']
+      })
+    ]
+  });
+  const { module } = await testBundle(t, bundle);
+  t.is(module.exports, 'It works!');
+});
+
+test('supports JS extensions in TS when referring to TSX imports', async (t) => {
+  const bundle = await rollup({
+    input: 'tsx-import-js-extension/import-tsx-with-js-extension.ts',
+    onwarn: failOnWarn(t),
+    plugins: [
+      nodeResolve({
+        extensions: ['.js', '.ts', '.tsx']
+      }),
+      babel({
+        babelHelpers: 'bundled',
+        plugins: ['@babel/plugin-transform-typescript'],
+        extensions: ['.js', '.ts', '.tsx']
+      })
+    ]
+  });
+  const { module } = await testBundle(t, bundle);
+  t.is(module.exports, 'It works!');
+});
+
+test('supports JSX extensions in TS when referring to TSX imports', async (t) => {
+  const bundle = await rollup({
+    input: 'tsx-import-jsx-extension/import-tsx-with-jsx-extension.ts',
+    onwarn: failOnWarn(t),
+    plugins: [
+      nodeResolve({
+        extensions: ['.js', '.ts', '.tsx']
+      }),
+      babel({
+        babelHelpers: 'bundled',
+        plugins: ['@babel/plugin-transform-typescript'],
+        extensions: ['.js', '.ts', '.tsx']
+      })
+    ]
+  });
+  const { module } = await testBundle(t, bundle);
+  t.is(module.exports, 'It works!');
+});
+
+test('supports MJS extensions in TS when referring to MTS imports', async (t) => {
+  const bundle = await rollup({
+    input: 'ts-import-mjs-extension/import-ts-with-mjs-extension.ts',
+    onwarn: failOnWarn(t),
+    plugins: [
+      nodeResolve({
+        extensions: ['.js', '.ts', '.mjs', '.mts']
+      }),
+      babel({
+        babelHelpers: 'bundled',
+        plugins: ['@babel/plugin-transform-typescript'],
+        extensions: ['.js', '.ts', '.mjs', '.mts']
+      })
+    ]
+  });
+  const { module } = await testBundle(t, bundle);
+  t.is(module.exports, 'It works!');
+});
+
+test('supports CJS extensions in TS when referring to CTS imports', async (t) => {
+  const bundle = await rollup({
+    input: 'ts-import-cjs-extension/import-ts-with-cjs-extension.ts',
+    onwarn: failOnWarn(t),
+    plugins: [
+      nodeResolve({
+        extensions: ['.js', '.ts', '.cjs', '.cts']
+      }),
+      babel({
+        babelHelpers: 'bundled',
+        plugins: ['@babel/plugin-transform-typescript'],
+        extensions: ['.js', '.ts', '.cjs', '.cts']
       })
     ]
   });
@@ -462,7 +542,7 @@ test('marks a module as external if the resolved version is external', async (t)
   });
 });
 
-test('passes on "isEntry" flag', async (t) => {
+test('passes on "isEntry" flag and original importee', async (t) => {
   const resolveOptions = [];
   await rollup({
     input: 'entry/main.js',
@@ -485,19 +565,22 @@ test('passes on "isEntry" flag', async (t) => {
       }
     ]
   });
+
   t.deepEqual(resolveOptions, [
-    ['other.js', 'main.js', { custom: {}, isEntry: true }],
-    ['main.js', void 0, { custom: {}, isEntry: true }],
+    ['other.js', 'main.js', { attributes: {}, custom: {}, isEntry: true }],
+    ['main.js', void 0, { attributes: {}, custom: {}, isEntry: true }],
     [
       'other.js',
       'main.js',
       {
+        attributes: {},
         custom: {
           'node-resolve': {
             resolved: {
               id: join(DIRNAME, 'fixtures', 'entry', 'other.js'),
               moduleSideEffects: null
-            }
+            },
+            importee: './other.js'
           }
         },
         isEntry: true
@@ -507,28 +590,32 @@ test('passes on "isEntry" flag', async (t) => {
       'main.js',
       void 0,
       {
+        attributes: {},
         custom: {
           'node-resolve': {
             resolved: {
               id: join(DIRNAME, 'fixtures', 'entry', 'main.js'),
               moduleSideEffects: null
-            }
+            },
+            importee: 'entry/main.js'
           }
         },
         isEntry: true
       }
     ],
-    ['dep.js', 'main.js', { custom: {}, isEntry: false }],
+    ['dep.js', 'main.js', { attributes: {}, custom: {}, isEntry: false }],
     [
       'dep.js',
       'main.js',
       {
+        attributes: {},
         custom: {
           'node-resolve': {
             resolved: {
               id: join(DIRNAME, 'fixtures', 'entry', 'dep.js'),
               moduleSideEffects: null
-            }
+            },
+            importee: './dep.js'
           }
         },
         isEntry: false
@@ -547,7 +634,11 @@ test('passes on custom options', async (t) => {
       {
         name: 'test',
         async buildStart() {
-          await this.resolve('entry/main.js', void 0, { isEntry: false, custom: { test: 42 } });
+          await this.resolve('entry/main.js', void 0, {
+            isEntry: false,
+            skipSelf: false,
+            custom: { test: 42 }
+          });
         },
         resolveId(source, importer, options) {
           resolveOptions.push([
@@ -560,34 +651,38 @@ test('passes on custom options', async (t) => {
     ]
   });
   t.deepEqual(resolveOptions, [
-    ['main.js', void 0, { custom: { test: 42 }, isEntry: false }],
+    ['main.js', void 0, { attributes: {}, custom: { test: 42 }, isEntry: false }],
     [
       'main.js',
       void 0,
       {
+        attributes: {},
         custom: {
           test: 42,
           'node-resolve': {
             resolved: {
               id: join(DIRNAME, 'fixtures', 'entry', 'main.js'),
               moduleSideEffects: null
-            }
+            },
+            importee: 'entry/main.js'
           }
         },
         isEntry: false
       }
     ],
-    ['other.js', void 0, { custom: {}, isEntry: true }],
+    ['other.js', void 0, { attributes: {}, custom: {}, isEntry: true }],
     [
       'other.js',
       void 0,
       {
+        attributes: {},
         custom: {
           'node-resolve': {
             resolved: {
               id: join(DIRNAME, 'fixtures', 'entry', 'other.js'),
               moduleSideEffects: null
-            }
+            },
+            importee: 'entry/other.js'
           }
         },
         isEntry: true

@@ -1,5 +1,61 @@
 # @rollup/plugin-node-resolve ChangeLog
 
+## v15.2.3
+
+_2023-10-08_
+
+### Bugfixes
+
+- fix: modulePaths default is not set [#1534](https://github.com/rollup/plugins/pull/1534)
+
+## v15.2.2
+
+_2023-10-05_
+
+### Bugfixes
+
+- fix: ensure rollup 4 compatibility [#1595](https://github.com/rollup/plugins/pull/1595)
+
+## v15.2.1
+
+_2023-08-22_
+
+### Bugfixes
+
+- fix: Implement package exports / imports resolution algorithm according to Node documentation [#1549](https://github.com/rollup/plugins/pull/1549)
+
+## v15.2.0
+
+_2023-08-17_
+
+### Features
+
+- feat: pass original importee to secondary resolve [#1557](https://github.com/rollup/plugins/pull/1557)
+
+## v15.1.0
+
+_2023-05-30_
+
+### Features
+
+- feat: Resolve js/jsx/mjs/cjs imports from TypeScript files [#1498](https://github.com/rollup/plugins/pull/1498)
+
+## v15.0.2
+
+_2023-04-04_
+
+### Bugfixes
+
+- fix: bump is-builtin-module version, imports with a trailing slash [#1424](https://github.com/rollup/plugins/pull/1424)
+
+## v15.0.1
+
+_2022-10-21_
+
+### Updates
+
+- chore: update rollup dependencies ([3038271](https://github.com/rollup/plugins/commit/303827191ede6b2e4eade96c6968ed16a587683f))
+
 ## v15.0.0
 
 _2022-10-10_

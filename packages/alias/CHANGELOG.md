@@ -1,5 +1,57 @@
 # @rollup/plugin-alias ChangeLog
 
+## v5.1.0
+
+_2023-11-25_
+
+### Features
+
+- feat: add warning to avoid unintended duplicate modules (#1634)
+
+## v5.0.1
+
+_2023-10-05_
+
+### Bugfixes
+
+- fix: ensure rollup 4 compatibility [#1595](https://github.com/rollup/plugins/pull/1595)
+
+## v5.0.0
+
+_2023-04-04_
+
+### Breaking Changes
+
+- feat: resolve entry id [#1402](https://github.com/rollup/plugins/pull/1402)
+
+## v4.0.4
+
+_2023-04-04_
+
+### Updates
+
+- docs: fix README esm error [#1451](https://github.com/rollup/plugins/pull/1451)
+
+## v4.0.3
+
+_2023-01-20_
+
+### Bugfixes
+
+- fix: types should come first in exports [#1403](https://github.com/rollup/plugins/pull/1403)
+
+## v4.0.2
+
+_2022-10-21_
+
+### Updates
+
+- chore: update rollup dependencies ([3038271](https://github.com/rollup/plugins/commit/303827191ede6b2e4eade96c6968ed16a587683f))
+
+## v4.0.1
+
+_Skipped for repo rebase_
+
 ## v4.0.0
 
 _2022-10-07_

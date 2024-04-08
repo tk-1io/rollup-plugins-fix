@@ -1,5 +1,145 @@
 # @rollup/plugin-commonjs ChangeLog
 
+## v25.0.7
+
+_2023-10-15_
+
+### Bugfixes
+
+- fix: bump magic-string version [#1596](https://github.com/rollup/plugins/pull/1596)
+
+## v25.0.6
+
+_2023-10-15_
+
+### Bugfixes
+
+- fix: Keep the shebang at the top of the file content [#1610](https://github.com/rollup/plugins/pull/1610)
+
+## v25.0.5
+
+_2023-10-05_
+
+### Bugfixes
+
+- fix: ensure rollup 4 compatibility [#1595](https://github.com/rollup/plugins/pull/1595)
+
+## v25.0.4
+
+_2023-08-11_
+
+### Updates
+
+- docs: update docs [#1545](https://github.com/rollup/plugins/pull/1545)
+
+## v25.0.3
+
+_2023-07-15_
+
+### Bugfixes
+
+- fix: preserve `this` reference in the child class [#1537](https://github.com/rollup/plugins/pull/1537)
+
+## v25.0.2
+
+_2023-06-19_
+
+### Bugfixes
+
+- fix: add classBodyDepth flag [#1507](https://github.com/rollup/plugins/pull/1507)
+
+## v25.0.1
+
+_2023-06-10_
+
+### Bugfixes
+
+- fix: change dynamicRequireRoot to normalizedDynamicRequireRoot && tweak related tests [#1508](https://github.com/rollup/plugins/pull/1508)
+
+## v25.0.0
+
+_2023-05-12_
+
+### Breaking Changes
+
+- fix: dynamic require root check was broken in some cases [#1461](https://github.com/rollup/plugins/pull/1461)
+
+## v24.1.0
+
+_2023-04-11_
+
+### Features
+
+- feat: Do not use getters for module.exports [#1455](https://github.com/rollup/plugins/pull/1455)
+
+## v24.0.1
+
+_2023-01-20_
+
+### Bugfixes
+
+- fix: types should come first in exports [#1403](https://github.com/rollup/plugins/pull/1403)
+
+## v24.0.0
+
+_2022-12-18_
+
+### Breaking Changes
+
+- fix: check if defaultIsModuleExports is auto for getDefaultExportFromCjs [#1358](https://github.com/rollup/plugins/pull/1358)
+
+## v23.0.7
+
+_2022-12-17_
+
+### Bugfixes
+
+- fix: produce code which works when \_\_esModule is already defined [#1379](https://github.com/rollup/plugins/pull/1379)
+
+## v23.0.6
+
+_2022-12-17_
+
+### Bugfixes
+
+- fix: update magic-string [#1373](https://github.com/rollup/plugins/pull/1373)
+
+## v23.0.5
+
+_2022-12-15_
+
+### Bugfixes
+
+- fix: resolve export exports not found [#1363](https://github.com/rollup/plugins/pull/1363)
+
+## v23.0.4
+
+_2022-12-07_
+
+### Bugfixes
+
+- fix: declaration tag @default for ignoreTryCatch + fix some typos [#1370](https://github.com/rollup/plugins/pull/1370)
+
+## v23.0.3
+
+_2022-11-27_
+
+### Bugfixes
+
+- fix: correctly wrap a default class export from cjs module [#1350](https://github.com/rollup/plugins/pull/1350)
+
+## v23.0.2
+
+_2022-10-21_
+
+### Updates
+
+- chore: update rollup dependencies ([3038271](https://github.com/rollup/plugins/commit/303827191ede6b2e4eade96c6968ed16a587683f))
+
+## v23.0.1
+
+_Skipped for repo rebase_
+
 ## v23.0.0
 
 _2022-10-09_

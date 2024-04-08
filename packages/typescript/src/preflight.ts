@@ -1,14 +1,14 @@
-import { PluginContext, RollupOptions } from 'rollup';
+import type { PluginContext } from 'rollup';
 import typescript from 'typescript';
 
-import { TypeScriptConfig } from './options/tsconfig';
+import type { TypeScriptConfig } from './options/tsconfig';
 // import { resolveIdAsync } from './tslib';
 
 const { ModuleKind } = typescript;
 interface PreflightOptions {
   config: TypeScriptConfig;
   context: PluginContext;
-  rollupOptions: RollupOptions;
+  inputPreserveModules: boolean;
   tslib: any;
 }
 
@@ -31,12 +31,12 @@ const validModules = [
 ];
 
 // eslint-disable-next-line import/prefer-default-export
-export const preflight = ({ config, context, rollupOptions, tslib }: PreflightOptions) => {
+export const preflight = ({ config, context, inputPreserveModules, tslib }: PreflightOptions) => {
   if (!validModules.includes(config.options.module)) {
     context.warn(moduleErrorMessage);
   }
 
-  if (!rollupOptions.preserveModules && tslib === null) {
+  if (!inputPreserveModules && tslib === null) {
     context.error(tsLibErrorMessage);
   }
 };

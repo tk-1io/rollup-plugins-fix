@@ -13,7 +13,12 @@ const { testBundle } = require('../../../util/test');
 
 const { peerDependencies } = require('../package.json');
 
-const { commonjs, executeBundle, getCodeFromBundle } = require('./helpers/util.js');
+const {
+  commonjs,
+  executeBundle,
+  getCodeFromBundle,
+  normalizePathSlashes
+} = require('./helpers/util.js');
 
 install();
 test.beforeEach(() => process.chdir(__dirname));
@@ -445,6 +450,15 @@ test('prefers to set name using directory for index files', async (t) => {
   t.not(code.indexOf('var nonIndex'), -1, 'contains nonIndex');
 });
 
+test('correctly wraps the default export from a CommonJS module when it is a class', async (t) => {
+  const bundle = await rollup({
+    input: 'fixtures/samples/es-module-with-class-as-default-export/main.js',
+    plugins: [commonjs()]
+  });
+  const result = await executeBundle(bundle, t);
+  t.is(result.error, undefined);
+});
+
 test('does not warn even if the ES module does not export "default"', async (t) => {
   const warns = [];
   await rollup({
@@ -495,7 +509,9 @@ test('creates an error with a code frame when parsing fails', async (t) => {
   } catch (error) {
     t.is(
       error.frame,
-      '1: /* eslint-disable */\n2: export const foo = 2,\n                        ^'
+      `1: /* eslint-disable */
+2: export const foo = 2,
+                       ^`
     );
   }
 });
@@ -651,11 +667,17 @@ test('does not affect subsequently created instances when called with `requireRe
   const options = { requireReturnsDefault: 'preferred' };
 
   const instance1 = commonjs(options);
-  const bundle1 = await rollup({ input, plugins: [instance1] });
+  const bundle1 = await rollup({
+    input,
+    plugins: [instance1]
+  });
   const code1 = (await bundle1.generate({})).output[0].code;
 
   const instance2 = commonjs(options);
-  const bundle2 = await rollup({ input, plugins: [instance2] });
+  const bundle2 = await rollup({
+    input,
+    plugins: [instance2]
+  });
   const code2 = (await bundle2.generate({})).output[0].code;
 
   t.is(code1, code2);
@@ -706,16 +728,69 @@ test('throws when there is a dynamic require from outside dynamicRequireRoot', a
   }
 
   const cwd = process.cwd();
-  const id = path.join(cwd, 'fixtures/samples/dynamic-require-outside-root/main.js');
-  const dynamicRequireRoot = path.join(cwd, 'fixtures/samples/dynamic-require-outside-root/nested');
-  const minimalDynamicRequireRoot = path.join(cwd, 'fixtures/samples/dynamic-require-outside-root');
+  const id = normalizePathSlashes(
+    path.join(cwd, 'fixtures/samples/dynamic-require-outside-root/main.js')
+  );
+  const dynamicRequireRoot = normalizePathSlashes(
+    path.join(cwd, 'fixtures/samples/dynamic-require-outside-root/nested')
+  );
+  const minimalDynamicRequireRoot = normalizePathSlashes(
+    path.join(cwd, 'fixtures/samples/dynamic-require-outside-root')
+  );
+
   t.like(error, {
     message: `"${id}" contains dynamic require statements but it is not within the current dynamicRequireRoot "${dynamicRequireRoot}". You should set dynamicRequireRoot to "${minimalDynamicRequireRoot}" or one of its parent directories.`,
     pluginCode: 'DYNAMIC_REQUIRE_OUTSIDE_ROOT',
-    id,
-    dynamicRequireRoot
+    normalizedId: id,
+    normalizedDynamicRequireRoot: dynamicRequireRoot
   });
 });
+
+test('does not throw when a dynamic require uses different slashes than dynamicRequireRoot', async (t) => {
+  let error = null;
+  try {
+    await rollup({
+      input: 'fixtures/samples/dynamic-require-outside-root/main.js',
+      plugins: [
+        commonjs({
+          dynamicRequireRoot: 'fixtures\\samples\\dynamic-require-outside-root',
+          dynamicRequireTargets: [
+            'fixtures\\samples\\dynamic-require-outside-root\\nested\\target.js'
+          ]
+        })
+      ]
+    });
+  } catch (err) {
+    error = err;
+  }
+
+  t.is(error, null);
+});
+
+// On Windows, avoid a false error about a module not being in the dynamic require root due to
+// incoherent slashes/backslashes in the paths.
+if (os.platform() === 'win32') {
+  test('correctly asserts dynamicRequireRoot on Windows', async (t) => {
+    let error = null;
+    try {
+      await rollup({
+        input: 'fixtures/samples/dynamic-require-outside-root/main.js',
+        plugins: [
+          commonjs({
+            dynamicRequireRoot: 'fixtures/samples/dynamic-require-outside-root',
+            dynamicRequireTargets: [
+              'fixtures/samples/dynamic-require-outside-root/nested/target.js'
+            ]
+          })
+        ]
+      });
+    } catch (err) {
+      error = err;
+    }
+
+    t.is(error, null);
+  });
+}
 
 test('does not transform typeof exports for mixed modules', async (t) => {
   const bundle = await rollup({
@@ -1199,14 +1274,35 @@ test('allows the config to be reused', async (t) => {
       })
     ]
   };
-  let bundle = await rollup({ input: 'foo.js', ...config });
+  let bundle = await rollup({
+    input: 'foo.js',
+    ...config
+  });
   t.deepEqual(
     bundle.cache.modules.map(({ id }) => id),
     ['foo.js']
   );
-  bundle = await rollup({ input: 'bar.js', ...config });
+  bundle = await rollup({
+    input: 'bar.js',
+    ...config
+  });
   t.deepEqual(
     bundle.cache.modules.map(({ id }) => id),
     ['bar.js']
   );
+});
+
+test('keep the shebang at the top of the file content', async (t) => {
+  const bundle = await rollup({
+    input: ['fixtures/samples/shebang/main.js'],
+    plugins: [commonjs()]
+  });
+
+  const { output } = await bundle.generate({
+    exports: 'auto',
+    format: 'cjs',
+    chunkFileNames: '[name].js'
+  });
+
+  t.is(output[0].code.startsWith('#!/usr/bin/env node\n'), true);
 });

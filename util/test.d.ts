@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { RollupBuild, OutputOptions, OutputChunk, OutputAsset } from 'rollup';
-import { Assertions } from 'ava';
+import type { RollupBuild, OutputOptions, OutputChunk, OutputAsset } from 'rollup';
+import type { Assertions } from 'ava';
 
 interface GetCode {
   (bundle: RollupBuild, outputOptions?: OutputOptions | null, allFiles?: false): Promise<string>;
@@ -14,6 +14,16 @@ interface GetCode {
 }
 
 export const getCode: GetCode;
+
+export function getFiles(
+  bundle: RollupBuild,
+  outputOptions?: OutputOptions
+): Promise<
+  {
+    fileName: string;
+    content: any;
+  }[]
+>;
 
 export function evaluateBundle(bundle: RollupBuild): Promise<Pick<NodeModule, 'exports'>>;
 

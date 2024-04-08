@@ -18,14 +18,14 @@ export default function json(options = {}) {
             preferConst: options.preferConst,
             compact: options.compact,
             namedExports: options.namedExports,
+            includeArbitraryNames: options.includeArbitraryNames,
             indent
           }),
           map: { mappings: '' }
         };
       } catch (err) {
         const message = 'Could not parse JSON file';
-        const position = parseInt(/[\d]/.exec(err.message)[0], 10);
-        this.warn({ message, id, position });
+        this.error({ message, id, cause: err });
         return null;
       }
     }

@@ -1,6 +1,6 @@
 {
   "name": "@rollup/plugin-dynamic-import-vars",
-  "version": "2.0.0",
+  "version": "2.1.2",
   "publishConfig": {
     "access": "public"
   },
@@ -16,8 +16,8 @@
   "main": "./dist/cjs/index.js",
   "module": "./dist/es/index.js",
   "exports": {
-    "import": "./dist/es/index.js",
     "types": "./types/index.d.ts",
+    "import": "./dist/es/index.js",
     "default": "./dist/cjs/index.js"
   },
   "engines": {
@@ -30,9 +30,10 @@
     "ci:lint:commits": "commitlint --from=${CIRCLE_BRANCH} --to=${CIRCLE_SHA1}",
     "ci:test": "pnpm test -- --verbose",
     "prebuild": "del-cli dist",
+    "prepare": "if [ ! -d 'dist' ]; then pnpm build; fi",
     "prerelease": "pnpm build",
     "pretest": "pnpm build --sourcemap",
-    "release": "pnpm --workspace-root plugin:release --pkg $npm_package_name",
+    "release": "pnpm --workspace-root package:release $(pwd)",
     "test": "ava"
   },
   "files": [
@@ -54,7 +55,7 @@
     "interpolation"
   ],
   "peerDependencies": {
-    "rollup": "^1.20.0||^2.0.0||^3.0.0"
+    "rollup": "^1.20.0||^2.0.0||^3.0.0||^4.0.0"
   },
   "peerDependenciesMeta": {
     "rollup": {
@@ -62,15 +63,16 @@
     }
   },
   "dependencies": {
-    "@rollup/pluginutils": "^4.2.1",
+    "@rollup/pluginutils": "^5.0.1",
+    "astring": "^1.8.5",
     "estree-walker": "^2.0.2",
     "fast-glob": "^3.2.12",
-    "magic-string": "^0.26.4"
+    "magic-string": "^0.30.3"
   },
   "devDependencies": {
     "acorn": "^8.8.0",
     "prettier": "^2.7.1",
-    "rollup": "^3.0.0-7"
+    "rollup": "^4.0.0-24"
   },
   "types": "./types/index.d.ts",
   "ava": {

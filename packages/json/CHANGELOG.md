@@ -1,5 +1,45 @@
 # @rollup/plugin-json ChangeLog
 
+## v6.1.0
+
+_2023-12-12_
+
+### Features
+
+- feat: add `includeArbitraryNames` option (#1641)
+
+## v6.0.1
+
+_2023-10-05_
+
+### Bugfixes
+
+- fix: ensure rollup 4 compatibility [#1595](https://github.com/rollup/plugins/pull/1595)
+
+## v6.0.0
+
+_2022-12-17_
+
+### Breaking Changes
+
+- fix: log more robustly when JSON parsing fails [#1361](https://github.com/rollup/plugins/pull/1361)
+
+## v5.0.2
+
+_2022-11-27_
+
+### Updates
+
+- docs: correct minimatch to picomatch [#1332](https://github.com/rollup/plugins/pull/1332)
+
+## v5.0.1
+
+_2022-10-21_
+
+### Updates
+
+- chore: update rollup dependencies ([3038271](https://github.com/rollup/plugins/commit/303827191ede6b2e4eade96c6968ed16a587683f))
+
 ## v5.0.0
 
 _2022-10-10_

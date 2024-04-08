@@ -1,5 +1,33 @@
 # @rollup/plugin-babel ChangeLog
 
+## v6.0.4
+
+_2023-10-05_
+
+### Bugfixes
+
+- fix: ensure rollup 4 compatibility [#1595](https://github.com/rollup/plugins/pull/1595)
+
+## v6.0.3
+
+_2022-11-25_
+
+### Updates
+
+- docs: small typo in babel plugin readme [#1355](https://github.com/rollup/plugins/pull/1355)
+
+## v6.0.2
+
+_2022-10-21_
+
+### Updates
+
+- chore: update rollup dependencies ([3038271](https://github.com/rollup/plugins/commit/303827191ede6b2e4eade96c6968ed16a587683f))
+
+## v6.0.1
+
+_Skipped for repo rebase_
+
 ## v6.0.0
 
 _2022-10-08_

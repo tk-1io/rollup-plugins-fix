@@ -1,5 +1,37 @@
 # @rollup/plugin-yaml ChangeLog
 
+## v4.1.2
+
+_2023-10-05_
+
+### Bugfixes
+
+- fix: ensure rollup 4 compatibility [#1595](https://github.com/rollup/plugins/pull/1595)
+
+## v4.1.1
+
+_2023-06-19_
+
+### Bugfixes
+
+- fix: Add extensions?: string[] to RollupYamlOptions types [#1506](https://github.com/rollup/plugins/pull/1506)
+
+## v4.1.0
+
+_2023-05-12_
+
+### Features
+
+- feat: support specifying custom file extensions [#1445](https://github.com/rollup/plugins/pull/1445)
+
+## v4.0.1
+
+_2022-10-21_
+
+### Updates
+
+- chore: update rollup dependencies ([3038271](https://github.com/rollup/plugins/commit/303827191ede6b2e4eade96c6968ed16a587683f))
+
 ## v4.0.0
 
 _2022-10-10_

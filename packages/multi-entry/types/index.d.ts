@@ -1,5 +1,5 @@
-import { FilterPattern } from '@rollup/pluginutils';
-import { Plugin } from 'rollup';
+import type { FilterPattern } from '@rollup/pluginutils';
+import type { Plugin } from 'rollup';
 
 interface RollupMultiEntryOptions {
   /**
@@ -26,6 +26,13 @@ interface RollupMultiEntryOptions {
    * @default 'multi-entry.js'
    */
   entryFileName?: string;
+  /**
+   * The preserveModules option is to be used in conjunction with output.preserveModules ({@link https://rollupjs.org/guide/en/#outputpreservemodules}).
+   * If `true`, overrides the `entryFileName` option to be output.entryFileNames.
+   * If `false`, the plugin will respect the `entryFileName` option.
+   * @default false
+   */
+  preserveModules?: boolean;
 }
 
 /**

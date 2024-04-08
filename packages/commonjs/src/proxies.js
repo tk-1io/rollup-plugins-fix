@@ -24,13 +24,16 @@ export async function getStaticRequireProxy(id, requireReturnsDefault, loadModul
   } = await loadModule({ id });
   if (!commonjsMeta) {
     return getUnknownRequireProxy(id, requireReturnsDefault);
-  } else if (commonjsMeta.isCommonJS) {
+  }
+  if (commonjsMeta.isCommonJS) {
     return `export { __moduleExports as default } from ${JSON.stringify(id)};`;
-  } else if (!requireReturnsDefault) {
+  }
+  if (!requireReturnsDefault) {
     return `import { getAugmentedNamespace } from "${HELPERS_ID}"; import * as ${name} from ${JSON.stringify(
       id
     )}; export default /*@__PURE__*/getAugmentedNamespace(${name});`;
-  } else if (
+  }
+  if (
     requireReturnsDefault !== true &&
     (requireReturnsDefault === 'namespace' ||
       !commonjsMeta.hasDefaultExport ||
@@ -41,7 +44,7 @@ export async function getStaticRequireProxy(id, requireReturnsDefault, loadModul
   return `export { default } from ${JSON.stringify(id)};`;
 }
 
-export function getEntryProxy(id, defaultIsModuleExports, getModuleInfo) {
+export function getEntryProxy(id, defaultIsModuleExports, getModuleInfo, shebang) {
   const {
     meta: { commonjs: commonjsMeta },
     hasDefaultExport
@@ -52,9 +55,13 @@ export function getEntryProxy(id, defaultIsModuleExports, getModuleInfo) {
     if (hasDefaultExport) {
       code += `export { default } from ${stringifiedId};`;
     }
-    return code;
+    return shebang + code;
   }
-  return getEsImportProxy(id, defaultIsModuleExports);
+  const result = getEsImportProxy(id, defaultIsModuleExports);
+  return {
+    ...result,
+    code: shebang + result.code
+  };
 }
 
 export function getEsImportProxy(id, defaultIsModuleExports) {
@@ -66,7 +73,7 @@ export function getEsImportProxy(id, defaultIsModuleExports) {
     `import { __require as ${requireModule} } from ${JSON.stringify(id)};\n` +
     `var ${exportsName} = ${requireModule}();\n` +
     `export { ${exportsName} as __moduleExports };`;
-  if (defaultIsModuleExports) {
+  if (defaultIsModuleExports === true) {
     code += `\nexport { ${exportsName} as default };`;
   } else {
     code += `export default /*@__PURE__*/getDefaultExportFromCjs(${exportsName});`;

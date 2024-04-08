@@ -35,9 +35,13 @@ export function getDefaultExportFromNamespaceIfNotNamed (n) {
 }
 
 export function getAugmentedNamespace(n) {
+  if (n.__esModule) return n;
   var f = n.default;
 	if (typeof f == "function") {
-		var a = function () {
+		var a = function a () {
+			if (this instanceof a) {
+        return Reflect.construct(f, arguments, this.constructor);
+			}
 			return f.apply(this, arguments);
 		};
 		a.prototype = f.prototype;

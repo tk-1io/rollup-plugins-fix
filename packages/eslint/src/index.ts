@@ -1,6 +1,6 @@
 import { relative, resolve, sep } from 'path';
 
-import { Plugin } from 'rollup';
+import type { Plugin } from 'rollup';
 import { createFilter } from '@rollup/pluginutils';
 import { ESLint } from 'eslint';
 
@@ -55,7 +55,7 @@ export default function eslint(options = {} as RollupEslintOptions): Plugin {
         typeof formatter === 'string'
           ? await eslintInstance.loadFormatter(formatter)
           : { format: formatter };
-      const output = eslintFormatter.format(results);
+      const output = await eslintFormatter.format(results);
 
       if (output) {
         // eslint-disable-next-line no-console
